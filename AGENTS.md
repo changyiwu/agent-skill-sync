@@ -1,7 +1,7 @@
 # 技能副本同步（skill-sync）（專案藍圖）
 
 > 本檔為跨 Agent 通用的專案藍圖（AGENTS.md 開放標準）。任何 Agent 的每個 session 都應先讀本檔＋`handoff.md`。
-> Claude Code 不讀 `agents.md`，改由 `CLAUDE.md` 的 `@agents.md` import 本檔；Claude 專屬規範寫在 `CLAUDE.md`。
+> Claude Code 預設只在沒有 `CLAUDE.md` 時才讀 `AGENTS.md`，故由 `CLAUDE.md` 的 `@AGENTS.md` import 本檔；Claude 專屬規範寫在 `CLAUDE.md`。
 
 ## 專案簡介
 
@@ -27,7 +27,7 @@
 ## 目標與路線圖
 
 - [x] 階段一：`sync-skills/SKILL.md` 成形（含 git 前置檢查、逐檔 hash 驗證、殘留檔偵測）
-- [x] 階段二：本專案自身初始化（agents.md ＋ CLAUDE.md ＋ handoff.md ＋ README.md）
+- [x] 階段二：本專案自身初始化（AGENTS.md ＋ CLAUDE.md ＋ handoff.md ＋ README.md）
 - [x] 階段三：把 `sync-skills` 安裝到四家技能目錄（三台都已裝）
 - [x] 階段四：git init ＋ GitHub repo（L2，公開）
 - [x] 階段五：建立 L3 Obsidian 專案筆記
@@ -37,7 +37,7 @@
 - [x] 階段九：修掉階段八盤點抓到的三個複製缺陷（衍生物排除改在技能內；另兩個從**來源端**根治）
 - [x] 階段十：反向指標上線——把混在「都沒裝」裡的「安裝名對不上」拆成獨立分類（🔀）。範圍刻意收斂成「只比對當前專案的來源」，字面版的「全機查無來源」會噴出 84 筆別專案技能的噪音
 - [x] 階段十一：從**來源端**封住 CRLF 無聲改寫路徑（28 個 repo 補 `.gitattributes`，並寫進 `project-init` 讓新 repo 一建立就有）
-- [x] 階段十二：全專案審查，補掉三個「檢查看起來有效、實際失效」的洞（步驟 1 的排除規則比錯對象、步驟 2 沒 `fetch`、CRLF 知識只在 `agents.md` 而執行時讀不到）
+- [x] 階段十二：全專案審查，補掉三個「檢查看起來有效、實際失效」的洞（步驟 1 的排除規則比錯對象、步驟 2 沒 `fetch`、CRLF 知識只在 `AGENTS.md` 而執行時讀不到）
 - [x] 階段十三：補掉第四個同類的洞——步驟 2 的 git 指令**自己失敗**時，空輸出與「真的乾淨」在畫面上一模一樣，整道守門變成蓋章放行（改為檢查 `$?`）；順帶封住步驟 6 兩個會製造假差異／假雜訊的實作坑（`>` 轉向改寫換行、`$bad` 裡的缺檔餵進 `Get-FileFacts` 噴例外）
 
 ## 資料夾結構
@@ -47,8 +47,8 @@ skill-sync/
 ├─ .gitignore
 ├─ .gitattributes     # `* text=auto eol=lf`（階段十一，見〈已知限制〉的 CRLF 那條）
 ├─ README.md          # 技能說明與安裝方式
-├─ agents.md          # 本檔：專案藍圖
-├─ CLAUDE.md          # 橋接檔（@agents.md）
+├─ AGENTS.md          # 本檔：專案藍圖
+├─ CLAUDE.md          # 橋接檔（@AGENTS.md）
 ├─ handoff.md         # 交接檔（每次收工必更新）；已 gitignore，只走 L1
 └─ sync-skills/
    └─ SKILL.md        # 「同步技能」技能
@@ -80,7 +80,7 @@ skill-sync/
 
 | 層級 | 平台 | 位置 | 讀取時機 |
 |------|------|------|---------|
-| L1 | 本地（GDrive） | `agents.md`＋`handoff.md`＋`CLAUDE.md`（橋接）；另有專案上層的 `.skill-install/<電腦名>.json` | 每個 session |
+| L1 | 本地（GDrive） | `AGENTS.md`＋`handoff.md`＋`CLAUDE.md`（橋接）；另有專案上層的 `.skill-install/<電腦名>.json` | 每個 session |
 | L2 | GitHub | https://github.com/changyiwu/skill-sync （公開） | 指定時 |
 | L3 | Obsidian | `skill-sync/專案工作流程.md` | 有需要時 |
 
@@ -89,7 +89,7 @@ skill-sync/
 | 檔案 | 時效 | 寫入方式 | 放什麼 |
 |------|------|---------|--------|
 | `handoff.md` | **只對下一個 session 有效**，過期即丟 | 每次收工整份重寫 | 做到哪、下一步、**這次**的暫時 workaround |
-| `agents.md`（本檔） | **長期有效**，每個 session 都適用 | 只有規則本身變了才改 | 目標、路線圖、常設規則、結構 |
+| `AGENTS.md`（本檔） | **長期有效**，每個 session 都適用 | 只有規則本身變了才改 | 目標、路線圖、常設規則、結構 |
 | Obsidian／`git log` | **歷史**：發生過什麼、為什麼 | 只增不刪 | 決策紀錄、踩坑完整版、逐次進度 |
 
 驗收標準：**`handoff.md` 整份刪掉，不應損失任何長期資訊**——會的話代表該升級進本檔卻沒升級。
