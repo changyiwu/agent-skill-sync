@@ -38,8 +38,14 @@
 
 ```powershell
 $src = Join-Path (Get-Location) 'sync-skills'
-foreach ($d in "$HOME\.claude\skills","$HOME\.agents\skills","$HOME\.config\opencode\skills","$HOME\.gemini\config\skills") {
-  if (Test-Path $d) { Copy-Item $src "$d\" -Recurse -Force }
+$dests = @(
+  (Join-Path $HOME '.claude' 'skills')
+  (Join-Path $HOME '.agents' 'skills')
+  (Join-Path $HOME '.config' 'opencode' 'skills')
+  (Join-Path $HOME '.gemini' 'config' 'skills')
+)
+foreach ($d in $dests) {
+  if (Test-Path $d) { Copy-Item $src $d -Recurse -Force }
 }
 ```
 
