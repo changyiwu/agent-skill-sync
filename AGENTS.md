@@ -1,7 +1,7 @@
 # 技能副本同步（skill-sync）（專案藍圖）
 
 > 本檔為跨 Agent 通用的專案藍圖（AGENTS.md 開放標準）。任何 Agent 的每個 session 都應先讀本檔＋`handoff.md`。
-> Claude Code 預設只在沒有 `CLAUDE.md` 時才讀 `AGENTS.md`，故由 `CLAUDE.md` 的 `@AGENTS.md` import 本檔；Claude 專屬規範寫在 `CLAUDE.md`。
+> Claude Code 預設只在沒有 `CLAUDE.md` 時才讀 `AGENTS.md`，故由 `CLAUDE.md` 的 `@AGENTS.md` import 本檔（`CLAUDE.md` 只有這一行）；Claude 專屬規範寫在本檔〈Claude Code 專屬〉一節。
 
 ## 專案簡介
 
@@ -111,3 +111,8 @@ skill-sync/
 
 - `cross-device-agent-skills`：三技能（初始化專案／開工／收工）。本技能原本是它 README 的一段，抽出後那邊改為指向這裡
 - `chezmoi-setup`：`chezmoi-sync` 技能。管的是 dotfile 的 target↔source↔GitHub 三方一致，與本技能是**兩條不同路徑**——`Copy-Item` 繞過 chezmoi 直接寫 target，所以同步完 `chezmoi status` 必然報出這些技能，正解是 `chezmoi add` 不是 `apply`
+
+## Claude Code 專屬
+
+- 改技能一律改本資料夾的原始檔，改完在本專案說「同步技能」；**絕不可用 Write/Edit 重建 `~/.claude/skills/` 的安裝副本**
+- 驗證橋接是否生效：跑 `/context`，看 **Memory files** 有沒有列到 `CLAUDE.md`
