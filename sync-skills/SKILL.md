@@ -1,5 +1,5 @@
 ---
-name: sync-skills
+name: skill-sync
 description: 技能副本同步助手。當使用者說「同步技能」、「同步技能副本」、「技能同步」、「把技能複製到四個 agent」、「更新技能安裝副本」、「技能改完了幫我同步」等任何要把專案裡的技能原始檔覆蓋到 Claude Code／Codex／OpenCode／Antigravity 全域技能目錄的請求時，請一定要使用此技能。本技能會遞迴找出專案裡的技能、以 frontmatter 的 name 決定安裝名（改名安裝的技能也涵蓋）、先用 git 驗證原始檔可信（防雲端硬碟餵出過期內容）、只用 Copy-Item 從磁碟複製、逐檔 hash 比對證明副本真的一致，並維護一份跨電腦的安裝清單，指出「只有這台沒裝」的技能。
 ---
 
@@ -68,7 +68,7 @@ $skills | Format-Table Folder, InstallName, Valid -AutoSize
 三個設計要點，改動前先看懂：
 
 - **安裝名 ＝ frontmatter 的 `name:`**。這是各家工具的規則（資料夾名要跟 `name:` 一致），所以「來源資料夾 → 安裝名」的對照關係**本來就寫在源檔裡**，不需要另外手維護一張會過期的對照表。
-- **根目錄的 `SKILL.md` 是整包標記，不是技能**。技能包常在根目錄放一份介紹整包的 `SKILL.md`（例：`name: claude-code-lazy-packs`），它跟 `skills/` 是兄弟關係。只要子資料夾裡找得到技能，根目錄那份就略過；**只有**全專案找不到子技能時，才把根目錄自己當成單一技能（`rdq-skill/SKILL.md` 那種寫法）。
+- **根目錄的 `SKILL.md` 是整包標記，不是技能**。技能包常在根目錄放一份介紹整包的 `SKILL.md`（例：`name: claude-code-lazy-packs`），它跟 `skills/` 是兄弟關係。只要子資料夾裡找得到技能，根目錄那份就略過；**只有**全專案找不到子技能時，才把根目錄自己當成單一技能（`agent-rdq/SKILL.md` 那種寫法）。
 - **`$skip` 不是可有可無**。實測會撈到安裝器產生的測試副本（`generated/`）與 Python 套件內建的技能（`site-packages/`），照同步等於拿垃圾覆蓋。
 
 ⚠️ **`$skip` 一定要比對「相對路徑」（`.Substring($src.Length)`），不能比對 `FullName`。**這條在步驟 1、5、6 三個地方都成立。拿 `FullName` 去比的話，一個放在 `D:\build\my-skills\` 的專案，每個檔案的完整路徑都會命中 `\build\` 而被排除——步驟 1 的後果是**偵測到 0 個技能、而且不報錯**（實測驗證過）。失敗方式是「什麼都沒發生」，比複製錯還難發現。
@@ -402,7 +402,7 @@ if ($manifestDir) {
   $doc = [ordered]@{
     computer    = $me
     updated     = (Get-Date -Format 'yyyy-MM-dd HH:mm')
-    generatedBy = 'sync-skills'
+    generatedBy = 'skill-sync'
     tools       = $snapshot
   }
   $out = Join-Path $manifestDir "$me.json"
@@ -465,4 +465,4 @@ if ($manifestDir) {
 - **占位符要填在原始檔**。若做法是「原始檔留 `<你的帳號>` 占位符、裝好之後才在副本裡替換」，步驟 6 的 hash 比對會**每次都報不一致**。建議原始檔就填好本機的值，副本純粹是複製品
 - `SKILL.md` 不可存成含 BOM 的 UTF-8，否則 frontmatter 解析失敗、技能觸發不了。連帶地步驟 1 也會讀不到 `name:`、安裝名變空字串。`Copy-Item` 是位元組複製，不會改變編碼——BOM 問題只會在**編輯原始檔**時發生
 - 換行差異有兩個來源：**安裝器把副本寫成 CRLF**（如 `npx skills add`），以及 **`autocrlf=true` 把源檔改寫成 CRLF**（步驟 2 那條警告）。兩者都會讓步驟 6 報「內容差異」而內容其實一樣——用步驟 6 的正規化比對分辨，並在回報裡單獨列一類
-- 本 skill 的**原始檔**在 `skill-sync/sync-skills/`（`skill-sync` 專案資料夾本身放哪由你決定，建議放雲端硬碟資料夾以便跨電腦同步）。這個技能自己也適用自己：改完在該專案說「同步技能」即可
+- 本 skill 的**原始檔**在 `agent-skill-sync/sync-skills/`（`agent-skill-sync` 專案資料夾本身放哪由你決定，建議放雲端硬碟資料夾以便跨電腦同步）。這個技能自己也適用自己：改完在該專案說「同步技能」即可

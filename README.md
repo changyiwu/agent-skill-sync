@@ -1,4 +1,4 @@
-# 技能副本同步（skill-sync）
+# 技能副本同步（agent-skill-sync）
 
 > 一個口令：「**同步技能**」。把專案裡的技能原始檔安全地覆蓋到四個 Agent 工具的全域技能目錄，並**證明**覆蓋成功。
 
@@ -6,7 +6,7 @@
 
 | 技能 | 口令 | 做什麼 |
 |------|------|--------|
-| `sync-skills` | 「同步技能」 | 遞迴找出專案裡的技能 → 用 git 驗證源檔可信 → `Copy-Item` 覆蓋已存在的安裝副本 → 逐檔 hash 比對回報 |
+| `skill-sync` | 「同步技能」 | 遞迴找出專案裡的技能 → 用 git 驗證源檔可信 → `Copy-Item` 覆蓋已存在的安裝副本 → 逐檔 hash 比對回報 |
 
 適用於任何「原始檔放在專案資料夾、安裝副本散在各工具技能目錄」的技能包。來源資料夾名與安裝名**不一樣也沒關係**（例：`skills/08-draw` → `claude-draw`）。
 
@@ -34,7 +34,7 @@
 
 ## 安裝
 
-把 `sync-skills/` 複製到你的全域技能目錄（第一次只能手動）。在這個 repo 的根目錄跑：
+把 `sync-skills/` 複製到你的全域技能目錄、命名為 `skill-sync`（第一次只能手動）。在這個 repo 的根目錄跑：
 
 ```powershell
 $src = Join-Path (Get-Location) 'sync-skills'
@@ -45,7 +45,7 @@ $dests = @(
   (Join-Path $HOME '.gemini' 'config' 'skills')
 )
 foreach ($d in $dests) {
-  if (Test-Path $d) { Copy-Item $src $d -Recurse -Force }
+  if (Test-Path $d) { Copy-Item $src (Join-Path $d 'skill-sync') -Recurse -Force }
 }
 ```
 
@@ -93,7 +93,7 @@ foreach ($d in $dests) {
 {
   "computer": "PC-YI-FY",
   "updated": "2026-08-01 21:04",
-  "generatedBy": "sync-skills",
+  "generatedBy": "skill-sync",
   "tools": {
     "Claude Code": { "installed": true, "skills": ["claude-draw", "..."] },
     "Antigravity": { "installed": false, "skills": [] }
@@ -130,5 +130,5 @@ foreach ($d in $dests) {
 
 ## 相關專案
 
-- `cross-device-agent-skills` — 三技能（初始化專案／開工／收工）。本技能原本是它 README 的一段
-- `chezmoi-setup` — `chezmoi-sync` 技能，管 dotfile 三方一致。與本技能是兩條不同路徑
+- `agent-project-flow` — 三技能（初始化專案／開工／收工）。本技能原本是它 README 的一段
+- `agent-chezmoi-sync`（已封存）— `chezmoi-sync` 技能，管 dotfile 三方一致。與本技能是兩條不同路徑

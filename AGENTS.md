@@ -1,13 +1,13 @@
-# 技能副本同步（skill-sync）（專案藍圖）
+# 技能副本同步（agent-skill-sync）（專案藍圖）
 
 > 本檔為跨 Agent 通用的專案藍圖（AGENTS.md 開放標準）。任何 Agent 的每個 session 都應先讀本檔＋`handoff.md`。
 > Claude Code 預設只在沒有 `CLAUDE.md` 時才讀 `AGENTS.md`，故由 `CLAUDE.md` 的 `@AGENTS.md` import 本檔（`CLAUDE.md` 只有這一行）；Claude 專屬規範寫在本檔〈Claude Code 專屬〉一節。
 
 ## 專案簡介
 
-維護 `sync-skills` 技能——把「專案裡的技能原始檔」安全地覆蓋到本機四個 Agent 工具（Claude Code／Codex／OpenCode／Antigravity）的全域技能目錄。口令：「**同步技能**」。
+維護 `skill-sync` 技能——把「專案裡的技能原始檔」安全地覆蓋到本機四個 Agent 工具（Claude Code／Codex／OpenCode／Antigravity）的全域技能目錄。口令：「**同步技能**」。
 
-從 `cross-device-agent-skills` 的 README 抽出來獨立成技能，因為這套流程對**任何**有技能原始檔的專案都適用，不該綁在那個 repo 裡。
+從 `agent-project-flow` 的 README 抽出來獨立成技能，因為這套流程對**任何**有技能原始檔的專案都適用，不該綁在那個 repo 裡。
 
 ## 這個技能解決什麼
 
@@ -28,7 +28,7 @@
 
 - [x] 階段一：`sync-skills/SKILL.md` 成形（含 git 前置檢查、逐檔 hash 驗證、殘留檔偵測）
 - [x] 階段二：本專案自身初始化（AGENTS.md ＋ CLAUDE.md ＋ handoff.md ＋ README.md）
-- [x] 階段三：把 `sync-skills` 安裝到四家技能目錄（三台都已裝）
+- [x] 階段三：把 `skill-sync` 安裝到四家技能目錄（三台都已裝）
 - [x] 階段四：git init ＋ GitHub repo（L2，公開）
 - [x] 階段五：建立 L3 Obsidian 專案筆記
 - [x] 階段六：跨電腦實測（`<電腦C>` 首裝後跑「同步技能」，並用清單補齊落差的 11 個技能）
@@ -43,7 +43,7 @@
 ## 資料夾結構
 
 ```
-skill-sync/
+agent-skill-sync/
 ├─ .gitignore
 ├─ .gitattributes     # `* text=auto eol=lf`（階段十一，見〈已知限制〉的 CRLF 那條）
 ├─ README.md          # 技能說明與安裝方式
@@ -59,9 +59,9 @@ skill-sync/
 技能守不住的邊界。完整成因、實測數據與當初怎麼取捨都在 L3 筆記，這裡只留結論：
 
 - **首裝要人工確認**。四家都沒裝過的技能只列出來問、不自動裝——刻意的：同步工具的預設行為應該是**收斂到現狀**，不是擴張
-- **不相容的安裝模式技能偵測不到，只能靠來源端不要那樣做**。三種已從來源端根治：占位符替換型（`html-slide-builder`）、安裝時改寫 `name:`（`agents-lazy-guide`）、專案根目錄即技能（`rdq-skill`）。**同樣模式再出現時不會有任何警告**
+- **不相容的安裝模式技能偵測不到，只能靠來源端不要那樣做**。三種已從來源端根治：占位符替換型（`slides-html`）、安裝時改寫 `name:`（`agent-setup-guide`）、專案根目錄即技能（`agent-rdq`）。**同樣模式再出現時不會有任何警告**
 - **「安裝名對不上」已從「都沒裝」拆出來（階段十），但留了一個死角**：來源**同時**改了 `name:` 又大改內容時，三個訊號（去 `name:` 行的內容 hash／來源資料夾名／frontmatter `name`）會**全部**失效，舊名副本繼續留著、繼續被載入、沒有任何警告。訊號設計與判讀在 `sync-skills/SKILL.md` 步驟 4，成因詳見 L3 筆記〈踩坑筆記〉
-- **安裝時注入使用者金鑰仍不相容**：`html-slide-builder` 的 `references/firebase-config.md` 一旦設定 Firebase 就不等於源檔（三台目前都沒設定，所以是條件式限制而非固定狀態）
+- **安裝時注入使用者金鑰仍不相容**：`slides-html` 的 `references/firebase-config.md` 一旦設定 Firebase 就不等於源檔（三台目前都沒設定，所以是條件式限制而非固定狀態）
 - **CRLF 有兩條路進來，技能擋不住、但（階段十二起）會出聲**：步驟 2 會查 `autocrlf` ＋ `.gitattributes` 並警告，步驟 6 會把「僅換行／BOM 差異」跟真落後分開。**根治仍只能靠來源端的 `.gitattributes`**（`agents/` 底下 30 個 repo 已全數有，且已寫進 `project-init`）——技能刻意不做正規化比對，那會讓它對「副本被安裝器改寫」失明
 - **跨電腦清單只記「有沒有裝」，所以「名單一致」不等於「內容一致」**。版本的唯一權威是 git，清單刻意不記版本（否則會多出一個會過期的事實來源），代價是**副本內容落後只有在那台實際跑一次逐檔 hash 才看得到**——名單齊平的電腦可以整批技能停在幾個月前的版本而毫無跡象。2026-08-13 實例：`<電腦C>` 名單自 08-07 起就齊全，10 個技能的內容卻停在更早的版本
 - **只保證副本追得上源檔，不保證源檔是對的**。驗的是 bytes 一致；內容本身壞掉（例如指到已廢路徑）不在守備範圍，那要靠人讀
@@ -81,8 +81,8 @@ skill-sync/
 | 層級 | 平台 | 位置 | 讀取時機 |
 |------|------|------|---------|
 | L1 | 本地（GDrive） | `AGENTS.md`＋`handoff.md`＋`CLAUDE.md`（橋接）；另有專案上層的 `.skill-install/<電腦名>.json` | 每個 session |
-| L2 | GitHub | https://github.com/changyiwu/skill-sync （公開） | 指定時 |
-| L3 | Obsidian | `skill-sync/專案工作流程.md` | 有需要時 |
+| L2 | GitHub | https://github.com/changyiwu/agent-skill-sync （公開） | 指定時 |
+| L3 | Obsidian | `agent-skill-sync/專案工作流程.md` | 有需要時 |
 
 ## 三個檔案的職責（依「時效性」分家，不是依「詳細程度」）
 
@@ -109,8 +109,8 @@ skill-sync/
 
 ## 相關專案
 
-- `cross-device-agent-skills`：三技能（初始化專案／開工／收工）。本技能原本是它 README 的一段，抽出後那邊改為指向這裡
-- `chezmoi-setup`：`chezmoi-sync` 技能。管的是 dotfile 的 target↔source↔GitHub 三方一致，與本技能是**兩條不同路徑**——`Copy-Item` 繞過 chezmoi 直接寫 target，所以同步完 `chezmoi status` 必然報出這些技能，正解是 `chezmoi add` 不是 `apply`
+- `agent-project-flow`：三技能（初始化專案／開工／收工）。本技能原本是它 README 的一段，抽出後那邊改為指向這裡
+- `agent-chezmoi-sync`（已封存）：`chezmoi-sync` 技能。管的是 dotfile 的 target↔source↔GitHub 三方一致，與本技能是**兩條不同路徑**——`Copy-Item` 繞過 chezmoi 直接寫 target，所以同步完 `chezmoi status` 必然報出這些技能，正解是 `chezmoi add` 不是 `apply`
 
 ## Claude Code 專屬
 
