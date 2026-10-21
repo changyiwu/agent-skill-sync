@@ -26,7 +26,7 @@
 
 ## 目標與路線圖
 
-- [x] 階段一：`sync-skills/SKILL.md` 成形（含 git 前置檢查、逐檔 hash 驗證、殘留檔偵測）
+- [x] 階段一：`skill-sync/SKILL.md` 成形（含 git 前置檢查、逐檔 hash 驗證、殘留檔偵測）
 - [x] 階段二：本專案自身初始化（AGENTS.md ＋ CLAUDE.md ＋ handoff.md ＋ README.md）
 - [x] 階段三：把 `skill-sync` 安裝到四家技能目錄（三台都已裝）
 - [x] 階段四：git init ＋ GitHub repo（L2，公開）
@@ -50,7 +50,7 @@ agent-skill-sync/
 ├─ AGENTS.md          # 本檔：專案藍圖
 ├─ CLAUDE.md          # 橋接檔（@AGENTS.md）
 ├─ handoff.md         # 交接檔（每次收工必更新）；已 gitignore，只走 L1
-└─ sync-skills/
+└─ skill-sync/
    └─ SKILL.md        # 「同步技能」技能
 ```
 
@@ -60,7 +60,7 @@ agent-skill-sync/
 
 - **首裝要人工確認**。四家都沒裝過的技能只列出來問、不自動裝——刻意的：同步工具的預設行為應該是**收斂到現狀**，不是擴張
 - **不相容的安裝模式技能偵測不到，只能靠來源端不要那樣做**。三種已從來源端根治：占位符替換型（`slides-html`）、安裝時改寫 `name:`（`agent-setup-guide`）、專案根目錄即技能（`agent-rdq`）。**同樣模式再出現時不會有任何警告**
-- **「安裝名對不上」已從「都沒裝」拆出來（階段十），但留了一個死角**：來源**同時**改了 `name:` 又大改內容時，三個訊號（去 `name:` 行的內容 hash／來源資料夾名／frontmatter `name`）會**全部**失效，舊名副本繼續留著、繼續被載入、沒有任何警告。訊號設計與判讀在 `sync-skills/SKILL.md` 步驟 4，成因詳見 L3 筆記〈踩坑筆記〉
+- **「安裝名對不上」已從「都沒裝」拆出來（階段十），但留了一個死角**：來源**同時**改了 `name:` 又大改內容時，三個訊號（去 `name:` 行的內容 hash／來源資料夾名／frontmatter `name`）會**全部**失效，舊名副本繼續留著、繼續被載入、沒有任何警告。訊號設計與判讀在 `skill-sync/SKILL.md` 步驟 4，成因詳見 L3 筆記〈踩坑筆記〉
 - **安裝時注入使用者金鑰仍不相容**：`slides-html` 的 `references/firebase-config.md` 一旦設定 Firebase 就不等於源檔（三台目前都沒設定，所以是條件式限制而非固定狀態）
 - **CRLF 有兩條路進來，技能擋不住、但（階段十二起）會出聲**：步驟 2 會查 `autocrlf` ＋ `.gitattributes` 並警告，步驟 6 會把「僅換行／BOM 差異」跟真落後分開。**根治仍只能靠來源端的 `.gitattributes`**（`agents/` 底下 30 個 repo 已全數有，且已寫進 `project-init`）——技能刻意不做正規化比對，那會讓它對「副本被安裝器改寫」失明
 - **跨電腦清單只記「有沒有裝」，所以「名單一致」不等於「內容一致」**。版本的唯一權威是 git，清單刻意不記版本（否則會多出一個會過期的事實來源），代價是**副本內容落後只有在那台實際跑一次逐檔 hash 才看得到**——名單齊平的電腦可以整批技能停在幾個月前的版本而毫無跡象。2026-08-13 實例：`<電腦C>` 名單自 08-07 起就齊全，10 個技能的內容卻停在更早的版本
@@ -68,10 +68,10 @@ agent-skill-sync/
 
 ## 專案專屬規則
 
-- **CRLF 三條規則的正本在 `sync-skills/SKILL.md`，不要在本檔另立一份**：`autocrlf=true` 讓步驟 2 失效（步驟 2 的警告）、判斷「只有換行差異」要去 BOM ＋ CRLF→LF 重比（步驟 6 的 `Get-FileFacts`）、量換行不要用 PowerShell 管線（步驟 6）。**理由：技能是在別的專案裡跑的，那時讀不到本檔**——凡是執行時才需要的知識，只寫在這裡等於沒寫
+- **CRLF 三條規則的正本在 `skill-sync/SKILL.md`，不要在本檔另立一份**：`autocrlf=true` 讓步驟 2 失效（步驟 2 的警告）、判斷「只有換行差異」要去 BOM ＋ CRLF→LF 重比（步驟 6 的 `Get-FileFacts`）、量換行不要用 PowerShell 管線（步驟 6）。**理由：技能是在別的專案裡跑的，那時讀不到本檔**——凡是執行時才需要的知識，只寫在這裡等於沒寫
 - **但「工作區 CRLF 的兩種成因」只在本檔**（診斷 repo 用，不在同步流程裡）：用 `git cat-file blob HEAD:<路徑>` 對工作區逐檔比 CRLF 數，兩邊相同＝committed CRLF（每台 clone 都一樣、不會漂移，不用管），只有工作區有＝checkout 轉出來的（危險）。**`git status` 沉默證明不了工作區是 LF**——有 `.gitattributes` 時 git 比對本來就會正規化，本 repo 自己就是「工作區與 blob 都是 CRLF 卻一直 `clean`」的實例
 - **同一檔案前後讀到不同內容時，先查 commit 時間再下結論**。「來源被人改了」比「Drive 餵舊 bytes」常見得多；`git update-index --really-refresh` 的建議已評估後撤回，**不要照著加進技能**
-- **三個 PowerShell 實作坑的正本也在 `sync-skills/SKILL.md`，本檔只留結論**：`Copy-Item <資料夾> <資料夾>` 在目標已存在時會塞成巢狀、原本那份一個 byte 都沒動且不報錯 → 一律「列舉再逐檔複製」（步驟 5）；排除規則比 `FullName` 會讓含 `\build\` 路徑的專案整包被跳過且不報錯 → 一律比相對路徑（步驟 1、5、6）；`TryParseExact` 在 PowerShell 綁不上 5 參數多載，會讓**所有**電腦被誤標成「時間格式無法解讀」→ 用 `try/catch` ＋ `ParseExact`（步驟 4）。**理由與 CRLF 那條不同：這三條 `SKILL.md` 本來就有完整正本，兩邊各存一份只會分歧**——要改成因或實測細節，改那邊
+- **三個 PowerShell 實作坑的正本也在 `skill-sync/SKILL.md`，本檔只留結論**：`Copy-Item <資料夾> <資料夾>` 在目標已存在時會塞成巢狀、原本那份一個 byte 都沒動且不報錯 → 一律「列舉再逐檔複製」（步驟 5）；排除規則比 `FullName` 會讓含 `\build\` 路徑的專案整包被跳過且不報錯 → 一律比相對路徑（步驟 1、5、6）；`TryParseExact` 在 PowerShell 綁不上 5 參數多載，會讓**所有**電腦被誤標成「時間格式無法解讀」→ 用 `try/catch` ＋ `ParseExact`（步驟 4）。**理由與 CRLF 那條不同：這三條 `SKILL.md` 本來就有完整正本，兩邊各存一份只會分歧**——要改成因或實測細節，改那邊
 - **沙箱會攔下含 `Remove-Item` 的整段 PowerShell 指令**（訊息 `system path '/' is blocked`），清暫存檔改用 Bash 的 `rm`
 - **不要用 Bash heredoc 寫 PowerShell 腳本**：`<<'EOF'` 這種帶引號的形式照理不展開，但實測 `\\` 仍被吃成 `\`——`$skip` 的 `[\\/]` 變成 `[\/]`（只剩正斜線），在 Windows 路徑上**永遠不匹配**，掃描會混進 `generated\`、`site-packages\` 的垃圾技能且**不報錯**。失敗方式與 `SKILL.md` 步驟 1 警告的是同一類。寫 `.ps1` 一律用 Write 工具
 - **讀 `handoff.md` 先看「更新者 @ 哪台」**：技能副本每台各一份，交接檔描述的永遠是單機狀態，「88/88 全 `OK`」對另一台沒有任何意義

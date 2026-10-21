@@ -34,10 +34,10 @@
 
 ## 安裝
 
-把 `sync-skills/` 複製到你的全域技能目錄、命名為 `skill-sync`（第一次只能手動）。在這個 repo 的根目錄跑：
+把 `skill-sync/` 複製到你的全域技能目錄（第一次只能手動）。在這個 repo 的根目錄跑：
 
 ```powershell
-$src = Join-Path (Get-Location) 'sync-skills'
+$src = Join-Path (Get-Location) 'skill-sync'
 $dests = @(
   (Join-Path $HOME '.claude' 'skills')
   (Join-Path $HOME '.agents' 'skills')
