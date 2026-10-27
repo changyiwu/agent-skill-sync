@@ -34,6 +34,8 @@
 
 ## 安裝
 
+前置：要有 **PowerShell 7**（`pwsh`），5.1 跑不動下面的三參數 `Join-Path`。ARM64 的 Windows（例如 RTX Spark）不要用 winget 裝，改用官方 `win-arm64.msi`，原因寫在 `skill-sync/SKILL.md`〈執行環境〉。
+
 把 `skill-sync/` 複製到你的全域技能目錄（第一次只能手動）。在這個 repo 的根目錄跑：
 
 ```powershell

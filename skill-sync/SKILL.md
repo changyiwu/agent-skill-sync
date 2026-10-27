@@ -13,6 +13,14 @@ description: 技能副本同步助手。當使用者說「同步技能」、「�
 
 本技能的 PowerShell 在 **Windows 與 macOS 都要能跑**，一律用 **pwsh 7**（macOS：`brew install --cask powershell`），不可退回 Windows PowerShell 5.1。
 
+Windows 新電腦常常只有 5.1，**先跑 `pwsh -v` 確認**。沒有的話，安裝方式要依 CPU 架構挑：
+
+- **ARM64（NVIDIA RTX Spark／Snapdragon，`$env:PROCESSOR_ARCHITECTURE` 為 `ARM64`）不要用 `winget install Microsoft.PowerShell`。**winget 從 7.6 起預設裝 **MSIX**，實測（2026-10-27，RTX Spark N1X）卡在「正在啟動套件安裝」超過 10 分鐘，沒有任何錯誤訊息，也沒有 `msiexec` 或 UAC 視窗在等你按——所以「去找被藏起來的確認視窗」這個直覺在這裡是錯的，等再久都不會動。改用[官方安裝頁](https://learn.microsoft.com/zh-tw/powershell/scripting/install/install-powershell-on-windows)列的 **`win-arm64.msi`**，手動點兩下安裝即可（7.6.6 實測可裝；同一天從 GitHub Releases 抓的 7.6.9 MSI 卻裝不起來，**以官方頁列的版本為準，不要直接抓 Releases 的最新版**）
+- 官方頁註明 **7.7 起不再提供 MSI**，屆時上面這條路會消失，要改試 ZIP 版（解壓縮後直接執行 `pwsh.exe`，不需要系統管理員權限）
+- 裝好驗證：`& "$env:ProgramFiles\PowerShell\7\pwsh.exe" -NoProfile -Command '[Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture'` 要印出 `Arm64`。印出 `X64` 代表裝到 x64 版、正在模擬器裡跑，功能沒問題，但慢
+
+Agent 從 Bash 呼叫 `pwsh -File` 時，腳本開頭要加 `[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)`，不然中文輸出會變成亂碼。真正麻煩的是**數字照樣看得懂、中文標籤卻讀不出來**，這時很容易把「哪個數字對應哪個判定」看錯。
+
 路徑寫法三條規則，改動任何一段程式碼都適用：
 
 - 組路徑一律 `Join-Path`，**不要出現字面 `\`**
